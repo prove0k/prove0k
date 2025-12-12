@@ -191,6 +191,16 @@
             border: 2px solid white;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
+
+        /* Hide Images in Learn Mode Class */
+        body.hide-learn-images #learn-view .item-icon {
+            display: none !important;
+        }
+        /* Adjust layout when images are hidden */
+        body.hide-learn-images #learn-view .dynamic-text {
+            font-size: calc(var(--base-text-size) * var(--scale-text) * 1.5) !important; /* Make text bigger when alone */
+            margin-top: 0;
+        }
     </style>
 </head>
 <body class="min-h-screen pb-20">
@@ -356,6 +366,18 @@
             </div>
 
             <div class="space-y-6">
+                <!-- Image Visibility Toggle (New) -->
+                <div class="bg-purple-50 p-4 rounded-2xl flex items-center justify-between">
+                    <div class="flex flex-col">
+                        <label class="font-bold text-purple-600">顯示圖片</label>
+                        <span class="text-xs text-purple-400">Show Images</span>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="global-img-toggle" class="sr-only peer" checked onchange="updateImageVisibility(this.checked)">
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                    </label>
+                </div>
+
                 <!-- Icon Size Control -->
                 <div class="bg-blue-50 p-4 rounded-2xl">
                     <div class="flex justify-between mb-2">
@@ -487,6 +509,46 @@
                     { word: 'ink', zh: '墨水', icon: '✒️' },
                     { word: 'insect', zh: '昆蟲', icon: '🐞' }
                 ]
+            },
+            {
+                letter: 'J',
+                lower: 'j',
+                color: 'bg-cyan-100 border-cyan-300 text-cyan-600',
+                items: [
+                    { word: 'juice', zh: '果汁', icon: '🧃' },
+                    { word: 'jump', zh: '跳', icon: '🏃' },
+                    { word: 'jam', zh: '果醬', icon: '🍓' }
+                ]
+            },
+            {
+                letter: 'K',
+                lower: 'k',
+                color: 'bg-lime-100 border-lime-300 text-lime-600',
+                items: [
+                    { word: 'key', zh: '鑰匙', icon: '🔑' },
+                    { word: 'kiwi', zh: '奇異果', icon: '🥝' },
+                    { word: 'kite', zh: '風箏', icon: '🪁' }
+                ]
+            },
+            {
+                letter: 'L',
+                lower: 'l',
+                color: 'bg-amber-100 border-amber-300 text-amber-600',
+                items: [
+                    { word: 'lion', zh: '獅子', icon: '🦁' },
+                    { word: 'leaf', zh: '葉子', icon: '🍃' },
+                    { word: 'lamp', zh: '檯燈', icon: '💡' }
+                ]
+            },
+            {
+                letter: 'M',
+                lower: 'm',
+                color: 'bg-violet-100 border-violet-300 text-violet-600',
+                items: [
+                    { word: 'monkey', zh: '猴子', icon: '🐵' },
+                    { word: 'milk', zh: '牛奶', icon: '🥛' },
+                    { word: 'moon', zh: '月亮', icon: '🌙' }
+                ]
             }
         ];
 
@@ -520,6 +582,14 @@
                 root.style.setProperty('--scale-icon', value);
             } else if (type === 'text') {
                 root.style.setProperty('--scale-text', value);
+            }
+        }
+
+        function updateImageVisibility(show) {
+            if (show) {
+                document.body.classList.remove('hide-learn-images');
+            } else {
+                document.body.classList.add('hide-learn-images');
             }
         }
         

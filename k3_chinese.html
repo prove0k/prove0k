@@ -3,768 +3,545 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K3 中文學習樂園</title>
-    <!-- 引入 Tailwind CSS 快速排版 -->
+    <title>巴特一家的新生活 - K3 中文學習</title>
+    <!-- 引入 Tailwind CSS 快速樣式 -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 引入 Google Fonts: M PLUS Rounded 1c (日式圓體) -->
-    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
-    <!-- 引入 Confetti 特效 -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
+    <!-- 引入 Google Fonts: Zen Maru Gothic (日式圓體風格) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'sakura': '#fde2e4',
+                        'matcha': '#dbe7c9',
+                        'sky': '#dbebf7',
+                        'lemon': '#fff4bd',
+                        'coffee': '#8d6e63',
+                        'cream': '#fdfbf7',
+                    },
+                    fontFamily: {
+                        'cute': ['"Zen Maru Gothic"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        /* 全局字體設定 */
-        :root {
-            --vocab-text-size: 1.5rem;
-            --vocab-icon-size: 2.25rem;
-            /* 預設主題顏色 (海豚 - 藍綠色系) */
-            --primary-color: #00ACC1;
-            --secondary-color: #4DD0E1;
-            --accent-color: #B2EBF2;
-            --bg-color: #E0F7FA;
-            --text-color: #006064;
-            --pattern-color-1: #B2EBF2;
-            --pattern-color-2: #80DEEA;
-        }
-
-        /* 巴特一家主題顏色 (淺粉紅色系) */
-        body.theme-bart {
-            --primary-color: #F06292;   /* 較深粉紅，用於標題、重點文字 */
-            --secondary-color: #FF80AB; /* 亮粉紅，用於按鈕 */
-            --accent-color: #F8BBD0;    /* 淺粉紅，用於邊框、背景點綴 */
-            --bg-color: #FFF5F7;        /* 極淺粉紅背景 */
-            --text-color: #880E4F;      /* 深紫紅，用於主要閱讀文字 */
-            --pattern-color-1: #F8BBD0;
-            --pattern-color-2: #F48FB1;
-        }
-
         body {
-            font-family: 'M PLUS Rounded 1c', sans-serif;
-            background-color: var(--bg-color);
-            background-image: radial-gradient(var(--pattern-color-1) 15%, transparent 16%), radial-gradient(var(--pattern-color-2) 15%, transparent 16%);
-            background-size: 60px 60px;
-            background-position: 0 0, 30px 30px;
-            color: var(--text-color);
-            overflow-x: hidden;
-            user-select: none;
-            transition: background-color 0.5s, color 0.5s;
+            font-family: 'Zen Maru Gothic', sans-serif;
+            background-color: #fdfbf7;
+            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 20px 20px;
         }
-
-        /* 按鈕與卡片風格 */
-        .card {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.05);
-            transition: transform 0.2s, box-shadow 0.2s;
-            border: 3px solid transparent;
+        
+        /* 隱藏圖片模式 */
+        .hide-images .emoji-img {
+            display: none;
         }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 20px rgba(0,0,0,0.1);
-            border-color: var(--secondary-color);
-        }
-        .card:active { transform: scale(0.95); }
-
-        /* 動態大小控制類別 */
-        .dynamic-text { font-size: var(--vocab-text-size); }
-        .dynamic-icon { font-size: var(--vocab-icon-size); }
-        .hide-images .dynamic-icon { display: none; }
-
-        /* 導航按鈕 */
-        .nav-btn { transition: all 0.3s ease; }
-        .nav-btn.active {
-            background-color: var(--secondary-color);
-            color: white;
+        
+        /* 動畫 */
+        .bounce-hover:hover {
             transform: scale(1.05);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        /* 分類按鈕 */
-        .category-btn {
-            background-color: white;
-            color: #888;
-            border: 2px solid #EEE;
-            transition: all 0.2s;
-        }
-        .category-btn:hover { background-color: #F0F4F8; }
-        .category-btn.active {
-            background-color: var(--accent-color);
-            color: var(--text-color);
-            border-color: var(--accent-color);
-            font-weight: bold;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
         }
 
-        /* 句子重組區塊 */
-        .word-piece {
-            background-color: white;
-            color: var(--text-color);
-            border: 2px solid var(--secondary-color);
-            border-radius: 15px;
-            padding: 10px 20px;
-            font-size: 1.5rem;
-            font-weight: bold;
-            cursor: pointer;
-            margin: 5px;
-            display: inline-block;
-            transition: all 0.2s;
-            box-shadow: 0 4px 0 var(--pattern-color-2);
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .word-piece:active { transform: translateY(4px); box-shadow: none; }
-        .word-piece.used { opacity: 0.3; cursor: default; pointer-events: none; box-shadow: none; transform: translateY(4px); }
 
-        /* 詞語找朋友氣泡 */
-        .word-bubble {
-            background-color: white;
-            border: 3px solid var(--pattern-color-2);
-            color: var(--text-color);
-            border-radius: 50px;
-            padding: 15px 30px;
-            font-size: 1.5rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        /* 遊戲正確錯誤動畫 */
+        .correct-anim {
+            animation: bounce 0.5s;
+            background-color: #dbe7c9 !important;
         }
-        .word-bubble:hover { transform: scale(1.1) translateY(-5px); border-color: var(--secondary-color); }
-        .word-bubble.correct {
-            background-color: var(--accent-color);
-            border-color: var(--secondary-color);
-            color: var(--text-color);
-            pointer-events: none;
-            transform: scale(1.05);
-            box-shadow: 0 0 15px var(--secondary-color);
+        .wrong-anim {
+            animation: shake 0.5s;
+            background-color: #fde2e4 !important;
         }
-        .word-bubble.wrong { animation: shake 0.5s; background-color: #FFCCBC; border-color: #FF8A65; color: #BF360C; }
 
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            25%, 75% { transform: translateX(-10px); }
-            50% { transform: translateX(10px); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
         }
 
-        .answer-slot {
-            min-height: 80px;
-            background-color: #fff;
-            border: 3px dashed var(--secondary-color);
-            border-radius: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: center;
-            padding: 10px;
-            margin-bottom: 20px;
-        }
-
-        .action-btn { box-shadow: 0 6px 0 rgba(0,0,0,0.1); }
-        .action-btn:active { transform: translateY(6px); box-shadow: none; }
-        #settings-panel { backdrop-filter: blur(5px); }
-        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
-        .floating-icon { animation: float 3s ease-in-out infinite; }
-        input[type=range] { accent-color: var(--secondary-color); }
-        
-        /* 主題切換按鈕 */
-        .theme-switch-btn {
-            border: 3px solid transparent;
-            opacity: 0.7;
-            transform: scale(0.95);
-        }
-        .theme-switch-btn.active {
-            border-color: white;
-            box-shadow: 0 0 0 2px var(--secondary-color);
-            opacity: 1;
-            transform: scale(1.05);
-        }
+        /* 文字大小動態調整 */
+        .text-size-sm { font-size: 1rem; }
+        .text-size-md { font-size: 1.5rem; }
+        .text-size-lg { font-size: 2.2rem; }
+        .text-size-xl { font-size: 3rem; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center p-4">
+<body class="text-gray-700 h-screen flex flex-col overflow-hidden">
 
-    <!-- 設定按鈕 -->
-    <button onclick="toggleSettings()" class="fixed top-4 left-4 z-50 bg-white p-3 rounded-full shadow-lg hover:bg-gray-100 transition text-2xl" title="設定">⚙️</button>
-
-    <!-- 設定面板 -->
-    <div id="settings-panel" class="fixed inset-0 bg-black/30 z-40 hidden flex items-center justify-center">
-        <div class="bg-white rounded-3xl p-8 w-[90%] max-w-md shadow-2xl">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold text-gray-600">設定 🛠️</h3>
-                <button onclick="toggleSettings()" class="text-gray-400 hover:text-gray-600 text-2xl">✕</button>
-            </div>
-            <div class="space-y-6">
-                <div>
-                    <label class="block text-gray-500 font-bold mb-2">文字大小</label>
-                    <input type="range" min="1" max="3" step="0.1" value="1.5" id="text-size-slider" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-                </div>
-                <div>
-                    <label class="block text-gray-500 font-bold mb-2">圖片大小</label>
-                    <input type="range" min="1.5" max="5" step="0.2" value="2.25" id="icon-size-slider" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-                </div>
-                <div class="flex items-center justify-between bg-gray-50 p-3 rounded-xl">
-                    <span class="text-gray-500 font-bold">顯示圖片</span>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="show-image-toggle" class="sr-only peer" checked>
-                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-[var(--secondary-color)]"></div>
-                    </label>
-                </div>
-            </div>
-            <button onclick="toggleSettings()" class="w-full mt-8 text-white font-bold py-3 rounded-xl shadow-md" style="background-color: var(--secondary-color)">確定</button>
+    <!-- 頂部導航 -->
+    <header class="bg-white shadow-sm p-4 flex justify-between items-center z-10">
+        <div class="flex items-center gap-3">
+            <div class="bg-sakura p-2 rounded-full text-2xl">🏫</div>
+            <h1 class="text-xl md:text-2xl font-bold text-coffee">K3 快樂學中文</h1>
         </div>
-    </div>
-
-    <!-- 標題區 -->
-    <header class="w-full max-w-4xl text-center mb-6 mt-4 relative">
-        <!-- 主題切換器 -->
-        <div class="flex justify-center gap-4 mb-4">
-            <button onclick="switchTheme('dolphin')" id="theme-btn-dolphin" class="theme-switch-btn active bg-[#E0F7FA] text-[#006064] px-4 py-2 rounded-full font-bold shadow-sm flex items-center gap-2">
-                <span>🐬</span> 拯救小海豚
-            </button>
-            <button onclick="switchTheme('bart')" id="theme-btn-bart" class="theme-switch-btn bg-[#FFF5F7] text-[#880E4F] px-4 py-2 rounded-full font-bold shadow-sm flex items-center gap-2">
-                <span>👨‍👩‍👦</span> 巴特一家的新生活
-            </button>
-        </div>
-
-        <h1 class="text-4xl md:text-5xl font-bold tracking-wider drop-shadow-sm transition-colors duration-500" style="color: var(--primary-color)">
-            <span class="inline-block floating-icon" id="header-icon">🐬</span> <span id="header-title">拯救小海豚</span> <span class="inline-block floating-icon" style="animation-delay: 1.5s;">🌊</span>
-        </h1>
-        <p class="text-gray-500 mt-2 text-lg">小朋友，一起來學認字和句子吧！</p>
-        <div id="voice-status" class="absolute top-0 right-0 text-xs text-gray-400 hidden md:block">🔊 聲音準備中...</div>
+        <button onclick="toggleSettings()" class="bg-matcha text-coffee px-4 py-2 rounded-full font-bold hover:bg-green-200 transition shadow-sm flex items-center gap-2">
+            ⚙️ 設定
+        </button>
     </header>
 
-    <!-- 導航切換 -->
-    <div class="flex flex-wrap justify-center gap-4 mb-8 bg-white p-3 rounded-[30px] shadow-lg max-w-4xl">
-        <button onclick="switchMode('vocab')" id="btn-vocab" class="nav-btn active px-6 py-2 md:px-8 md:py-3 rounded-full text-lg md:text-xl font-bold text-gray-500">📖 認讀生字</button>
-        <button onclick="switchMode('sentence')" id="btn-sentence" class="nav-btn px-6 py-2 md:px-8 md:py-3 rounded-full text-lg md:text-xl font-bold text-gray-500">🧩 句子排排隊</button>
-        <button onclick="switchMode('wordgame')" id="btn-wordgame" class="nav-btn px-6 py-2 md:px-8 md:py-3 rounded-full text-lg md:text-xl font-bold text-gray-500">🎈 詞語找朋友</button>
+    <!-- 設定面板 (Modal) -->
+    <div id="settingsPanel" class="fixed inset-0 bg-black bg-opacity-30 hidden z-50 flex justify-center items-center">
+        <div class="bg-white p-6 rounded-3xl shadow-xl w-11/12 max-w-md border-4 border-lemon">
+            <h2 class="text-2xl font-bold text-center mb-6 text-coffee">⚙️ 設定</h2>
+            
+            <div class="mb-6">
+                <label class="block text-lg font-bold mb-2">文字大小</label>
+                <input type="range" min="1" max="3" value="2" class="w-full accent-coffee" id="sizeSlider" oninput="updateSize()">
+                <div class="flex justify-between text-sm text-gray-500 mt-1">
+                    <span>小</span>
+                    <span>中</span>
+                    <span>大</span>
+                </div>
+            </div>
+
+            <div class="mb-6 flex justify-between items-center">
+                <label class="text-lg font-bold">顯示圖片 (圖示)</label>
+                <button id="imgToggleBtn" onclick="toggleImages()" class="w-14 h-8 bg-green-400 rounded-full relative transition-colors duration-200">
+                    <div id="imgToggleCircle" class="w-6 h-6 bg-white rounded-full absolute top-1 left-7 shadow-sm transition-all duration-200"></div>
+                </button>
+            </div>
+
+            <button onclick="toggleSettings()" class="w-full bg-sakura text-coffee font-bold py-3 rounded-xl hover:bg-pink-200 transition">
+                完成
+            </button>
+        </div>
     </div>
 
-    <!-- 主要內容區：認讀生字 -->
-    <main id="vocab-view" class="w-full max-w-5xl">
-        <div id="category-container" class="flex flex-wrap justify-center gap-3 mb-6 px-2">
-            <!-- 分類按鈕由 JS 生成 -->
-        </div>
-        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4" id="vocab-grid"></div>
+    <!-- 主要內容區 -->
+    <main id="appContent" class="flex-1 overflow-y-auto p-4 md:p-8 relative">
+        <!-- 內容由 JS 動態渲染 -->
     </main>
 
-    <!-- 主要內容區：句子排排隊 -->
-    <main id="sentence-view" class="w-full max-w-3xl hidden flex flex-col items-center">
-        <div class="w-full flex justify-between items-center mb-4 px-4">
-            <span class="text-xl font-bold" style="color: var(--primary-color)">第 <span id="current-level">1</span> / <span id="total-levels">7</span> 句</span>
-            <div class="flex space-x-1" id="progress-dots"></div>
+    <!-- 底部導航 -->
+    <nav class="bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] p-3">
+        <div class="max-w-3xl mx-auto flex justify-around">
+            <button onclick="setMode('home')" class="nav-btn flex flex-col items-center gap-1 text-gray-400 hover:text-coffee transition">
+                <span class="text-2xl">🏠</span>
+                <span class="text-xs font-bold">主頁</span>
+            </button>
+            <button onclick="setMode('learn')" class="nav-btn flex flex-col items-center gap-1 text-coffee transition">
+                <span class="text-2xl">📖</span>
+                <span class="text-xs font-bold">學習模式</span>
+            </button>
+            <button onclick="setMode('game')" class="nav-btn flex flex-col items-center gap-1 text-gray-400 hover:text-coffee transition">
+                <span class="text-2xl">🎮</span>
+                <span class="text-xs font-bold">遊戲模式</span>
+            </button>
         </div>
-        <div id="sentence-game-container" class="bg-white rounded-[30px] p-6 shadow-xl w-full border-4 relative overflow-hidden" style="border-color: var(--accent-color)">
-            <button onclick="speakCurrentTarget()" class="absolute top-4 right-4 text-3xl hover:scale-110 transition-transform" title="聽聽看">🔊</button>
-            <h3 class="text-2xl font-bold text-center text-gray-500 mb-6">請把文字排排隊：</h3>
-            <div id="drop-zone" class="answer-slot min-h-[100px] cursor-pointer" onclick="returnPiece()">
-                <span class="text-gray-300 text-lg pointer-events-none select-none">點擊下方的字卡來組裝句子</span>
-            </div>
-            <div id="word-bank" class="flex flex-wrap justify-center gap-3 mb-8 p-4 rounded-xl" style="background-color: var(--bg-color)"></div>
-            <div class="flex justify-center space-x-6">
-                <button onclick="resetLevel()" class="action-btn bg-gray-200 text-gray-500 px-6 py-3 rounded-full text-xl font-bold hover:brightness-110">↺ 重來</button>
-                <button onclick="checkAnswer()" class="action-btn text-white px-10 py-3 rounded-full text-xl font-bold hover:brightness-110" style="background-color: var(--secondary-color)">✅ 完成！</button>
-            </div>
-        </div>
-        <div id="completion-msg" class="hidden mt-8 text-center animate-bounce">
-            <h2 class="text-4xl font-bold" style="color: var(--primary-color)">太棒了！全部完成了！🎉</h2>
-            <button onclick="restartGame()" class="mt-4 text-white px-8 py-3 rounded-full text-xl shadow-lg action-btn" style="background-color: var(--secondary-color)">再玩一次</button>
-        </div>
-    </main>
-
-    <!-- 主要內容區：詞語找朋友 -->
-    <main id="wordgame-view" class="w-full max-w-4xl hidden flex flex-col items-center">
-        <div class="w-full flex justify-end items-center mb-4 px-4">
-            <span class="text-xl font-bold" style="color: var(--primary-color)">第 <span id="current-word-level">1</span> / <span id="total-word-levels">8</span> 關</span>
-        </div>
-        <div class="w-full text-center mb-6">
-            <h2 class="text-2xl font-bold text-[#888]">
-                請找出含有 <span class="text-3xl mx-2 bg-white px-3 py-1 rounded-lg border-2" style="color: var(--primary-color); border-color: var(--primary-color)" id="target-char">門</span> 的朋友
-            </h2>
-            <div class="mt-2 font-bold text-lg" style="color: var(--primary-color)">
-                找到 <span id="found-count">0</span> / 5 個
-            </div>
-        </div>
-        <div id="wordgame-container" class="bg-white/80 rounded-[40px] p-8 shadow-xl w-full min-h-[400px] border-4 relative" style="border-color: var(--accent-color)">
-            <div id="wordgame-area" class="flex flex-wrap justify-center items-center gap-6 h-full content-center"></div>
-        </div>
-        <div id="wordgame-completion" class="hidden mt-8 text-center">
-            <h2 class="text-4xl font-bold animate-bounce mb-4" style="color: var(--primary-color)">這關通過了！🌟</h2>
-            <button onclick="nextWordLevel()" class="action-btn text-white px-10 py-3 rounded-full text-xl font-bold hover:brightness-110" style="background-color: var(--secondary-color)">下一關 ➔</button>
-        </div>
-        <div id="wordgame-all-done" class="hidden mt-8 text-center">
-            <h2 class="text-4xl font-bold animate-bounce" style="color: var(--primary-color)">哇！你是詞語小博士！🎓</h2>
-            <button onclick="resetWordGame()" class="mt-4 text-white px-8 py-3 rounded-full text-xl shadow-lg action-btn" style="background-color: var(--secondary-color)">再玩一次</button>
-        </div>
-    </main>
-
-    <footer class="mt-12 text-center text-gray-400 text-sm">
-        <p>K3 中文互動教具 | 快樂學習</p>
-    </footer>
+    </nav>
 
     <script>
-        // --- 資料設定 (按主題分類) ---
-        const THEME_DATA = {
-            dolphin: {
-                title: "拯救小海豚",
-                icon: "🐬",
-                vocab: [
-                    { text: "天氣", icon: "🌤️", cat: "nature" }, { text: "晴朗", icon: "☀️", cat: "nature" }, 
-                    { text: "海灘", icon: "🏖️", cat: "nature" }, { text: "堆沙", icon: "🏰", cat: "action" }, 
-                    { text: "海豚", icon: "🐬", cat: "animal" }, { text: "海洋", icon: "🌊", cat: "nature" },
-                    { text: "害怕", icon: "😨", cat: "action" }, { text: "幫助", icon: "🤝", cat: "action" }, 
-                    { text: "勇敢", icon: "💪", cat: "action" }, { text: "熊貓", icon: "🐼", cat: "animal" }, 
-                    { text: "獅子", icon: "🦁", cat: "animal" }, { text: "大象", icon: "🐘", cat: "animal" },
-                    { text: "老虎", icon: "🐯", cat: "animal" }, { text: "鯊魚", icon: "🦈", cat: "animal" }, 
-                    { text: "企鵝", icon: "🐧", cat: "animal" }, { text: "海獅", icon: "🦭", cat: "animal" }, 
-                    { text: "海豹", icon: "🐆", cat: "animal" }, { text: "獸醫", icon: "👩‍⚕️", cat: "misc" }, 
-                    { text: "保護", icon: "🛡️", cat: "action" }, { text: "斑馬", icon: "🦓", cat: "animal" },
-                    { text: "胎生", icon: "🤰", cat: "misc" }, { text: "卵生", icon: "🥚", cat: "misc" }, 
-                    { text: "喜歡", icon: "❤️", cat: "action" }, { text: "環境", icon: "🌳", cat: "nature" }, 
-                    { text: "蛋", icon: "🥚", cat: "misc" }, { text: "北極熊", icon: "🐻‍❄️", cat: "animal" },
-                    { text: "動物園", icon: "🏞️", cat: "nature" }, { text: "護理員", icon: "🧑‍🌾", cat: "misc" }, 
-                    { text: "海洋館", icon: "🏟️", cat: "nature" }
-                ],
-                categories: [
-                    { id: 'all', name: '🌈 全部' }, { id: 'animal', name: '🦁 動物朋友' }, 
-                    { id: 'nature', name: '🌳 大自然' }, { id: 'action', name: '❤️ 動作/感受' }, { id: 'misc', name: '👩‍⚕️ 其他' }
-                ],
-                sentences: [
-                    { full: "動物園裏有熊貓。", chunks: ["動物園", "裏", "有", "熊貓"] },
-                    { full: "海洋裏有海龜。", chunks: ["海洋", "裏", "有", "海龜"] },
-                    { full: "可愛的海獅。", chunks: ["可愛", "的", "海獅"] },
-                    { full: "小狗會做甚麼？牠會守門口。", chunks: ["小狗", "會", "做", "甚麼？", "牠", "會", "守門口"] },
-                    { full: "熊貓吃竹葉。", chunks: ["熊貓", "吃", "竹葉"] },
-                    { full: "老虎生活在陸地上。", chunks: ["老虎", "生活", "在", "陸地上"] },
-                    { full: "卵生的動物有雞。", chunks: ["卵生", "的", "動物", "有", "雞"] }
-                ],
-                wordFamily: {
-                    "門": ["門窗", "門票", "門診", "門鈴", "門牙"],
-                    "沙": ["沙漠", "沙石", "沙包", "沙塵", "沙丁魚"],
-                    "環": ["環保", "環遊", "環境", "環球", "環節"],
-                    "晴": ["晴朗", "晴空", "晴天", "放晴", "晴雨表"],
-                    "洋": ["洋蔥", "洋裝", "汪洋", "海洋", "洋娃娃"],
-                    "護": ["護理", "護送", "護膝", "保護", "護目鏡"],
-                    "老": ["老鼠", "老翁", "老虎", "老年", "老太太"],
-                    "斑": ["斑點", "斑紋", "斑馬", "斑白", "斑馬線"]
-                }
-            },
-            bart: {
-                title: "巴特一家的新生活",
-                icon: "👨‍👩‍👦",
-                vocab: [
-                    { text: "旅行", icon: "✈️", cat: "life" }, { text: "陌生", icon: "❓", cat: "life" },
-                    { text: "歡迎", icon: "👐", cat: "life" }, { text: "友善", icon: "🤝", cat: "life" },
-                    { text: "鄰居", icon: "🏡", cat: "community" }, { text: "困難", icon: "😫", cat: "life" },
-                    { text: "設施", icon: "🏗️", cat: "community" }, { text: "輪椅", icon: "🦽", cat: "life" },
-                    { text: "樂器", icon: "🎻", cat: "life" }, { text: "邀請", icon: "💌", cat: "life" },
-                    { text: "籌款", icon: "💰", cat: "community" }, { text: "水災", icon: "🌊", cat: "life" },
-                    { text: "音樂", icon: "🎵", cat: "life" }, { text: "社區", icon: "🏘️", cat: "community" },
-                    { text: "書籍", icon: "📚", cat: "life" }, { text: "茶樓", icon: "🍵", cat: "community" },
-                    { text: "醫院", icon: "🏥", cat: "community" }, { text: "頒獎", icon: "🏆", cat: "life" },
-                    { text: "探訪", icon: "👋", cat: "life" }, { text: "賣旗", icon: "🏳️", cat: "community" },
-                    { text: "新年", icon: "🧨", cat: "festival" }, { text: "春節", icon: "🧧", cat: "festival" },
-                    { text: "圖書館", icon: "📖", cat: "community" }, { text: "郵政局", icon: "📮", cat: "community" },
-                    { text: "便利店", icon: "🏪", cat: "community" }, { text: "垃圾箱", icon: "🗑️", cat: "community" },
-                    { text: "交通燈", icon: "🚦", cat: "community" }, { text: "超級市場", icon: "🛒", cat: "community" },
-                    { text: "郊野公園", icon: "🏞️", cat: "community" }
-                ],
-                categories: [
-                    { id: 'all', name: '🌈 全部' }, { id: 'life', name: '🎈 生活' },
-                    { id: 'community', name: '🏘️ 社區' }, { id: 'festival', name: '🧧 節日' }
-                ],
-                sentences: [
-                    { full: "我們是好朋友。", chunks: ["我們", "是", "好朋友"] },
-                    { full: "我喜歡到公園玩。", chunks: ["我", "喜歡", "到", "公園", "玩"] },
-                    { full: "世界各地有很多不同的美食。", chunks: ["世界各地", "有", "很多", "不同的", "美食"] },
-                    { full: "行人天橋是社區設施。", chunks: ["行人天橋", "是", "社區設施"] },
-                    { full: "我會參加社區的清潔活動。", chunks: ["我", "會", "參加", "社區的", "清潔活動"] },
-                    { full: "我們會幫助有需要的人。", chunks: ["我們", "會", "幫助", "有需要的人"] }
-                ],
-                wordFamily: {
-                    "樂": ["快樂", "樂趣", "樂曲", "樂園", "樂譜"],
-                    "特": ["特別", "特徵", "特色", "特產", "特點"],
-                    "行": ["旅行", "行動", "行程", "行李", "行業"],
-                    "清": ["清楚", "清晨", "清理", "清白", "清淡"],
-                    "請": ["請教", "請假", "請問", "請求", "請客"],
-                    "茶": ["茶葉", "茶會", "茶具", "茶杯", "茶園"],
-                    "難": ["難題", "難得", "難度", "難過", "難關"],
-                    "善": ["善良", "善事", "善報", "善忘", "善變"]
-                }
-            }
-        };
+        // --- 資料庫 ---
+        const vocabData = [
+            { text: "旅行", emoji: "✈️", pinyin: "leoi5 hang4" }, { text: "陌生", emoji: "❓", pinyin: "mak6 sang1" },
+            { text: "歡迎", emoji: "👐", pinyin: "fun1 jing4" }, { text: "友善", emoji: "🤝", pinyin: "jau5 sin6" },
+            { text: "鄰居", emoji: "🏡", pinyin: "leon4 geoi1" }, { text: "困難", emoji: "😓", pinyin: "kwan3 naan4" },
+            { text: "設施", emoji: "🏗️", pinyin: "cit3 si1" }, { text: "輪椅", emoji: "🦽", pinyin: "leon4 ji2" },
+            { text: "樂器", emoji: "🎻", pinyin: "ngok6 hei3" }, { text: "邀請", emoji: "💌", pinyin: "jiu1 cing2" },
+            { text: "籌款", emoji: "💰", pinyin: "cau4 fun2" }, { text: "水災", emoji: "🌊", pinyin: "seoi2 zoi1" },
+            { text: "音樂", emoji: "🎵", pinyin: "jam1 ngok6" }, { text: "社區", emoji: "🏘️", pinyin: "se5 keoi1" },
+            { text: "書籍", emoji: "📚", pinyin: "syu1 zik6" }, { text: "茶樓", emoji: "🍵", pinyin: "caa4 lau4" },
+            { text: "醫院", emoji: "🏥", pinyin: "ji1 jyun2" }, { text: "頒獎", emoji: "🏆", pinyin: "baan1 zoeng2" },
+            { text: "探訪", emoji: "👵", pinyin: "taam3 fong2" }, { text: "賣旗", emoji: "🏳️", pinyin: "maai6 kei4" },
+            { text: "新年", emoji: "🧧", pinyin: "san1 nin4" }, { text: "春節", emoji: "🏮", pinyin: "ceon1 zit3" },
+            { text: "圖書館", emoji: "🏫", pinyin: "tou4 syu1 gun2" }, { text: "郵政局", emoji: "📮", pinyin: "jau4 zing3 guk6" },
+            { text: "便利店", emoji: "🏪", pinyin: "bin6 lei6 dim3" }, { text: "垃圾箱", emoji: "🗑️", pinyin: "laap6 saap3 soeng1" },
+            { text: "交通燈", emoji: "🚦", pinyin: "gaau1 tung1 dang1" }, { text: "超級市場", emoji: "🛒", pinyin: "ciu1 kap1 si5 coeng4" },
+            { text: "郊野公園", emoji: "🌳", pinyin: "gaau1 je5 gung1 jyun2" }
+        ];
 
-        let currentTheme = 'dolphin';
-        let currentCategory = 'all'; 
+        const sentenceData = [
+            "我們是好朋友。",
+            "我喜歡到公園玩。",
+            "世界各地有很多不同的美食。",
+            "行人天橋是社區設施。",
+            "我會參加社區的清潔活動。",
+            "我們會幫助有需要的人。"
+        ];
 
-        // 遊戲狀態變數 (共用)
-        let currentSentenceIndex = 0;
-        let currentChunks = []; 
-        let userSelection = []; 
-        let currentWordGameIndex = 0;
-        let currentWordGameFound = 0;
-        const TARGET_COUNT = 5;
+        const wordCombos = [
+            { key: "樂", words: ["快樂", "樂趣", "樂曲", "樂園", "樂譜"], color: "bg-sakura" },
+            { key: "特", words: ["特別", "特徵", "特色", "特產", "特點"], color: "bg-matcha" },
+            { key: "行", words: ["旅行", "行動", "行程", "行李", "行業"], color: "bg-sky" },
+            { key: "清", words: ["清楚", "清晨", "清理", "清白", "清淡"], color: "bg-lemon" },
+            { key: "請", words: ["請教", "請假", "請問", "請求", "請客"], color: "bg-sakura" },
+            { key: "茶", words: ["茶葉", "茶會", "茶具", "茶杯", "茶園"], color: "bg-matcha" },
+            { key: "難", words: ["難題", "難得", "難度", "難過", "難關"], color: "bg-sky" },
+            { key: "善", words: ["善良", "善事", "善報", "善忘", "善變"], color: "bg-lemon" }
+        ];
 
-        const synth = window.speechSynthesis;
-        let hkVoice = null;
+        const antonyms = [
+            { w1: "高", w2: "矮", e1: "🦒", e2: "🐁" },
+            { w1: "胖", w2: "瘦", e1: "🐘", e2: "🦌" },
+            { w1: "大", w2: "小", e1: "🍉", e2: "🍇" },
+            { w1: "上", w2: "下", e1: "👆", e2: "👇" },
+            { w1: "高", w2: "低", e1: "🏔️", e2: "🏜️" },
+            { w1: "遠", w2: "近", e1: "🔭", e2: "👓" },
+            { w1: "厚", w2: "薄", e1: "📚", e2: "📄" },
+            { w1: "冷", w2: "熱", e1: "❄️", e2: "🔥" },
+            { w1: "左", w2: "右", e1: "⬅️", e2: "➡️" },
+            { w1: "快", w2: "慢", e1: "🐇", e2: "🐢" },
+            { w1: "多", w2: "少", e1: "🔢", e2: "1️⃣" },
+            { w1: "裏", w2: "外", e1: "📥", e2: "📤" },
+            { w1: "輕", w2: "重", e1: "🎈", e2: "🏋️" },
+            { w1: "前", w2: "後", e1: "⏩", e2: "⏪" },
+            { w1: "長", w2: "短", e1: "📏", e2: "🤏" }
+        ];
 
-        function initVoice() {
-            const voices = synth.getVoices();
-            hkVoice = voices.find(v => v.lang === 'zh-HK') || voices.find(v => v.lang === 'zh-TW') || voices.find(v => v.lang.includes('zh'));
-            const statusEl = document.getElementById('voice-status');
-            if (hkVoice) {
-                statusEl.textContent = `🔊 發音準備就緒 (${hkVoice.name})`;
-                statusEl.style.color = getComputedStyle(document.body).getPropertyValue('--primary-color');
-            }
-        }
-        if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = initVoice;
-        initVoice();
+        // --- 狀態變數 ---
+        let currentMode = 'home';
+        let learnTab = 'vocab'; // vocab, sentence, combos, antonyms
+        let textSizeLevel = 2; // 1=sm, 2=md, 3=lg
+        let showImages = true;
 
+        // --- TTS 語音功能 ---
         function speak(text) {
-            if (synth.speaking) synth.cancel();
-            const utterThis = new SpeechSynthesisUtterance(text);
-            if (hkVoice) utterThis.voice = hkVoice;
-            utterThis.rate = 0.8;
-            utterThis.pitch = 1.1;
-            utterThis.lang = "zh-HK";
-            synth.speak(utterThis);
-        }
-
-        // --- 主題切換功能 ---
-        function switchTheme(theme) {
-            currentTheme = theme;
-            
-            // 更新 UI 樣式類別
-            if(theme === 'bart') {
-                document.body.classList.add('theme-bart');
-            } else {
-                document.body.classList.remove('theme-bart');
-            }
-
-            // 更新按鈕狀態
-            document.querySelectorAll('.theme-switch-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`theme-btn-${theme}`).classList.add('active');
-
-            // 更新標題與圖示
-            const data = THEME_DATA[theme];
-            document.getElementById('header-title').innerText = data.title;
-            document.getElementById('header-icon').innerText = data.icon;
-            document.title = `${data.title} - K3 中文學習`;
-
-            // 重置所有遊戲
-            currentCategory = 'all';
-            switchMode('vocab');
-            renderCategories();
-            renderVocab();
-            setupSentenceGame();
-            initWordGame();
-        }
-
-        // --- 設定與導航 ---
-        function toggleSettings() {
-            document.getElementById('settings-panel').classList.toggle('hidden');
-        }
-        document.getElementById('text-size-slider').addEventListener('input', function(e) {
-            document.documentElement.style.setProperty('--vocab-text-size', e.target.value + 'rem');
-        });
-        document.getElementById('icon-size-slider').addEventListener('input', function(e) {
-            document.documentElement.style.setProperty('--vocab-icon-size', e.target.value + 'rem');
-        });
-        document.getElementById('show-image-toggle').addEventListener('change', function(e) {
-            if(e.target.checked) document.getElementById('vocab-grid').classList.remove('hide-images');
-            else document.getElementById('vocab-grid').classList.add('hide-images');
-        });
-
-        window.onload = function() {
-            renderCategories();
-            renderVocab();
-            setupSentenceGame();
-            document.documentElement.style.setProperty('--vocab-text-size', '1.5rem');
-            document.documentElement.style.setProperty('--vocab-icon-size', '2.25rem');
-        };
-
-        function switchMode(mode) {
-            ['vocab', 'sentence', 'wordgame'].forEach(m => {
-                document.getElementById(`${m}-view`).classList.add('hidden');
-                document.getElementById(`${m}-view`).classList.remove('flex');
-                document.getElementById(`btn-${m}`).classList.remove('active');
-            });
-            
-            const view = document.getElementById(`${mode}-view`);
-            view.classList.remove('hidden');
-            view.classList.add('flex');
-            document.getElementById(`btn-${mode}`).classList.add('active');
-
-            // 重新初始化對應的遊戲以確保數據正確
-            if(mode === 'sentence') {
-                if(currentSentenceIndex === 0 && userSelection.length === 0) loadLevel(0);
-            } else if(mode === 'wordgame') {
-                 if(currentWordGameIndex === 0 && currentWordGameFound === 0) initWordGame();
-            }
-        }
-
-        // --- 1. 認字卡 ---
-        function renderCategories() {
-            const container = document.getElementById('category-container');
-            container.innerHTML = '';
-            const cats = THEME_DATA[currentTheme].categories;
-            cats.forEach(cat => {
-                const btn = document.createElement('button');
-                btn.className = `category-btn px-5 py-2 rounded-full text-lg shadow-sm ${currentCategory === cat.id ? 'active' : ''}`;
-                btn.innerText = cat.name;
-                btn.onclick = () => filterVocab(cat.id);
-                container.appendChild(btn);
-            });
-        }
-
-        function filterVocab(category) {
-            currentCategory = category;
-            renderCategories(); // 更新按鈕 active 狀態
-            renderVocab();
-        }
-
-        function renderVocab() {
-            const grid = document.getElementById('vocab-grid');
-            grid.innerHTML = '';
-            const vocabList = THEME_DATA[currentTheme].vocab;
-            const filteredData = currentCategory === 'all' 
-                ? vocabList 
-                : vocabList.filter(item => item.cat === currentCategory);
-
-            filteredData.forEach(item => {
-                const card = document.createElement('div');
-                // 修正：移除 min-h-[10rem] 和 h-full，改用固定高度 h-48 確保一致性
-                card.className = 'card flex flex-col items-center justify-center p-4 cursor-pointer h-48 animate-[fadeIn_0.5s_ease-out]';
-                card.onclick = () => {
-                    speak(item.text);
-                    card.style.transform = "scale(0.95)";
-                    setTimeout(() => card.style.transform = "", 150);
-                };
-                card.innerHTML = `
-                    <div class="dynamic-icon mb-2">${item.icon}</div>
-                    <div class="dynamic-text font-bold text-gray-700 text-center leading-snug">${item.text}</div>
-                `;
-                grid.appendChild(card);
-            });
-        }
-
-        // --- 2. 句子排排隊 ---
-        function setupSentenceGame() {
-            const sentences = THEME_DATA[currentTheme].sentences;
-            document.getElementById('total-levels').innerText = sentences.length;
-            loadLevel(0);
-        }
-
-        function loadLevel(index) {
-            const sentences = THEME_DATA[currentTheme].sentences;
-            // 防止切換主題時 index 超出範圍
-            if (index >= sentences.length) index = 0;
-
-            currentSentenceIndex = index;
-            document.getElementById('current-level').innerText = index + 1;
-            
-            const dotsContainer = document.getElementById('progress-dots');
-            dotsContainer.innerHTML = '';
-            for(let i=0; i<sentences.length; i++) {
-                let dot = document.createElement('div');
-                // 根據進度顯示不同顏色
-                const activeColor = currentTheme === 'bart' ? 'bg-[#F06292]' : 'bg-[#00ACC1]';
-                const doneColor = currentTheme === 'bart' ? 'bg-[#F8BBD0]' : 'bg-[#B2EBF2]';
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // 停止上一個發音
+                const utterance = new SpeechSynthesisUtterance(text);
                 
-                if (i < index) dot.className = `w-3 h-3 rounded-full ${doneColor}`;
-                else if (i === index) dot.className = `w-3 h-3 rounded-full ${activeColor}`;
-                else dot.className = 'w-3 h-3 rounded-full bg-gray-200';
-                dotsContainer.appendChild(dot);
-            }
-
-            const sentenceObj = sentences[index];
-            currentChunks = [...sentenceObj.chunks];
-            shuffleArray(currentChunks);
-            
-            userSelection = [];
-            renderGameArea();
-            document.getElementById('completion-msg').classList.add('hidden');
-            document.getElementById('sentence-game-container').classList.remove('hidden');
-        }
-
-        function speakCurrentTarget() {
-             speak(THEME_DATA[currentTheme].sentences[currentSentenceIndex].full);
-        }
-
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-        }
-
-        function renderGameArea() {
-            const dropZone = document.getElementById('drop-zone');
-            const wordBank = document.getElementById('word-bank');
-            
-            dropZone.innerHTML = '';
-            if (userSelection.length === 0) {
-                dropZone.innerHTML = '<span class="text-gray-300 text-lg pointer-events-none select-none">點擊下方字卡</span>';
+                // 嘗試尋找廣東話語音 (zh-HK)
+                const voices = window.speechSynthesis.getVoices();
+                const cantoneseVoice = voices.find(voice => voice.lang === 'zh-HK');
+                
+                if (cantoneseVoice) {
+                    utterance.voice = cantoneseVoice;
+                }
+                utterance.lang = 'zh-HK';
+                utterance.rate = 0.8; // 小朋友適合慢一點
+                utterance.pitch = 1.1; // 高一點比較親切
+                
+                window.speechSynthesis.speak(utterance);
             } else {
-                userSelection.forEach((chunk, idx) => {
-                    const el = document.createElement('div');
-                    el.className = 'word-piece';
-                    el.innerText = chunk.text;
-                    el.onclick = (e) => { e.stopPropagation(); removeWord(idx); };
-                    dropZone.appendChild(el);
+                alert("你的瀏覽器不支援語音功能。");
+            }
+        }
+
+        // --- 介面渲染邏輯 ---
+
+        function init() {
+            setMode('home');
+            // 預載語音列表 (某些瀏覽器需要)
+            window.speechSynthesis.getVoices();
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            updateNavStyles();
+            const content = document.getElementById('appContent');
+            content.innerHTML = '';
+            content.className = `flex-1 overflow-y-auto p-4 md:p-8 relative fade-in ${showImages ? '' : 'hide-images'}`;
+            
+            if (mode === 'home') renderHome(content);
+            else if (mode === 'learn') renderLearn(content);
+            else if (mode === 'game') renderGame(content);
+        }
+
+        function renderHome(container) {
+            container.innerHTML = `
+                <div class="h-full flex flex-col justify-center items-center gap-8">
+                    <div class="text-center">
+                        <div class="text-6xl mb-4 bounce-hover cursor-default">🏫</div>
+                        <h2 class="text-3xl font-bold text-coffee mb-2">巴特一家的新生活</h2>
+                        <p class="text-gray-500">K3 中文互動學習平台</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-lg">
+                        <button onclick="setMode('learn')" class="bg-white p-6 rounded-3xl shadow-lg border-b-8 border-sakura hover:translate-y-1 active:translate-y-2 active:border-b-0 transition-all flex items-center gap-4 group">
+                            <span class="text-4xl group-hover:scale-110 transition">📖</span>
+                            <div class="text-left">
+                                <h3 class="text-xl font-bold text-gray-700">學習模式</h3>
+                                <p class="text-sm text-gray-400">認字、句子、配詞</p>
+                            </div>
+                        </button>
+                        <button onclick="setMode('game')" class="bg-white p-6 rounded-3xl shadow-lg border-b-8 border-matcha hover:translate-y-1 active:translate-y-2 active:border-b-0 transition-all flex items-center gap-4 group">
+                            <span class="text-4xl group-hover:scale-110 transition">🎮</span>
+                            <div class="text-left">
+                                <h3 class="text-xl font-bold text-gray-700">遊戲模式</h3>
+                                <p class="text-sm text-gray-400">聽聲音找答案</p>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderLearn(container) {
+            // 學習模式的子導航
+            const tabsHTML = `
+                <div class="flex flex-wrap gap-2 mb-6 justify-center">
+                    <button onclick="switchLearnTab('vocab')" class="${learnTab === 'vocab' ? 'bg-coffee text-white' : 'bg-white text-coffee'} px-4 py-2 rounded-full font-bold shadow-sm transition">認讀生字</button>
+                    <button onclick="switchLearnTab('sentence')" class="${learnTab === 'sentence' ? 'bg-coffee text-white' : 'bg-white text-coffee'} px-4 py-2 rounded-full font-bold shadow-sm transition">句子朗讀</button>
+                    <button onclick="switchLearnTab('combos')" class="${learnTab === 'combos' ? 'bg-coffee text-white' : 'bg-white text-coffee'} px-4 py-2 rounded-full font-bold shadow-sm transition">配詞練習</button>
+                    <button onclick="switchLearnTab('antonyms')" class="${learnTab === 'antonyms' ? 'bg-coffee text-white' : 'bg-white text-coffee'} px-4 py-2 rounded-full font-bold shadow-sm transition">相反詞</button>
+                </div>
+                <div id="learnContent" class="pb-10"></div>
+            `;
+            container.innerHTML = tabsHTML;
+            renderLearnContent();
+        }
+
+        function switchLearnTab(tab) {
+            learnTab = tab;
+            setMode('learn'); // Re-render
+        }
+
+        function renderLearnContent() {
+            const container = document.getElementById('learnContent');
+            const textSizeClass = getTextSizeClass();
+
+            if (learnTab === 'vocab') {
+                let html = '<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">';
+                vocabData.forEach(item => {
+                    html += `
+                        <div onclick="speak('${item.text}')" class="bg-white rounded-2xl p-4 shadow-md flex flex-col items-center justify-center cursor-pointer hover:shadow-lg hover:-translate-y-1 transition border-2 border-transparent hover:border-sakura">
+                            <span class="text-5xl mb-2 emoji-img">${item.emoji}</span>
+                            <span class="${textSizeClass} font-bold text-gray-700">${item.text}</span>
+                        </div>
+                    `;
                 });
+                html += '</div>';
+                container.innerHTML = html;
+
+            } else if (learnTab === 'sentence') {
+                let html = '<div class="space-y-4 max-w-2xl mx-auto">';
+                sentenceData.forEach((sent, index) => {
+                    // Highlight logic simple: underline specific words from prompt
+                    let displaySent = sent
+                        .replace("好朋友", "<u class='decoration-wavy decoration-sakura'>好朋友</u>")
+                        .replace("公園", "<u class='decoration-wavy decoration-matcha'>公園</u>")
+                        .replace("美食", "<u class='decoration-wavy decoration-lemon'>美食</u>")
+                        .replace("行人天橋", "<u class='decoration-wavy decoration-sky'>行人天橋</u>")
+                        .replace("清潔活動", "<u class='decoration-wavy decoration-sakura'>清潔活動</u>");
+
+                    html += `
+                        <div onclick="speak('${sent.replace(/<[^>]*>/g, '')}')" class="bg-white rounded-2xl p-6 shadow-md cursor-pointer hover:bg-sky transition border-l-8 border-sky flex gap-4 items-center">
+                            <span class="bg-sky text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">🔊</span>
+                            <p class="${textSizeClass} font-bold leading-relaxed text-gray-700">${displaySent}</p>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+
+            } else if (learnTab === 'combos') {
+                let html = '<div class="grid grid-cols-1 md:grid-cols-2 gap-6">';
+                wordCombos.forEach(group => {
+                    html += `
+                        <div class="bg-white rounded-3xl shadow-md p-6 relative overflow-hidden">
+                            <div class="absolute -right-4 -top-4 w-24 h-24 ${group.color} rounded-full opacity-20"></div>
+                            <div class="flex items-center gap-4 mb-4 border-b-2 border-dashed border-gray-100 pb-2">
+                                <div onclick="speak('${group.key}')" class="${group.color} w-16 h-16 rounded-full flex items-center justify-center text-3xl font-bold text-gray-700 cursor-pointer shadow-inner">
+                                    ${group.key}
+                                </div>
+                                <span class="text-sm text-gray-400">點擊朗讀</span>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                ${group.words.map(w => `
+                                    <span onclick="speak('${w}')" class="bg-gray-50 hover:bg-gray-100 border border-gray-200 px-3 py-1 rounded-lg text-lg cursor-pointer transition">
+                                        ${w}
+                                    </span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+
+            } else if (learnTab === 'antonyms') {
+                let html = '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">';
+                antonyms.forEach(pair => {
+                    html += `
+                        <div class="bg-white rounded-2xl p-4 shadow-md flex items-center justify-between px-8 relative overflow-hidden">
+                            <div class="absolute inset-x-0 top-1/2 h-0.5 bg-gray-100 -z-0"></div>
+                            <div onclick="speak('${pair.w1}')" class="flex flex-col items-center cursor-pointer z-10 bg-white p-2 rounded-xl hover:scale-110 transition">
+                                <span class="text-3xl emoji-img mb-1">${pair.e1}</span>
+                                <span class="text-xl font-bold text-coffee">${pair.w1}</span>
+                            </div>
+                            <span class="text-gray-300 font-bold z-10">VS</span>
+                            <div onclick="speak('${pair.w2}')" class="flex flex-col items-center cursor-pointer z-10 bg-white p-2 rounded-xl hover:scale-110 transition">
+                                <span class="text-3xl emoji-img mb-1">${pair.e2}</span>
+                                <span class="text-xl font-bold text-coffee">${pair.w2}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+            }
+        }
+
+        // --- 遊戲邏輯 ---
+        let currentQuestion = null;
+        let isAnswering = false;
+
+        function renderGame(container) {
+            container.innerHTML = `
+                <div class="h-full flex flex-col items-center justify-center max-w-2xl mx-auto w-full">
+                    <div class="mb-8 text-center">
+                        <h2 class="text-2xl font-bold text-coffee mb-2">👂 聽聲音，找朋友</h2>
+                        <p class="text-gray-500">點擊喇叭聽聲音，然後選出正確的圖片文字！</p>
+                    </div>
+
+                    <div id="gameArea" class="w-full">
+                        <!-- 遊戲內容動態載入 -->
+                    </div>
+                </div>
+            `;
+            newGameQuestion();
+        }
+
+        function newGameQuestion() {
+            const gameArea = document.getElementById('gameArea');
+            isAnswering = false;
+            
+            // Randomly select one vocab
+            const target = vocabData[Math.floor(Math.random() * vocabData.length)];
+            currentQuestion = target;
+
+            // Pick 2 distractors (different from target)
+            let options = [target];
+            while (options.length < 3) {
+                let d = vocabData[Math.floor(Math.random() * vocabData.length)];
+                if (!options.includes(d)) options.push(d);
             }
 
-            wordBank.innerHTML = '';
-            currentChunks.forEach((chunkText, idx) => {
-                const el = document.createElement('div');
-                el.className = 'word-piece';
-                const isSelected = userSelection.some(sel => sel.bankIndex === idx);
-                if (isSelected) el.classList.add('used');
-                else el.onclick = () => selectWord(chunkText, idx);
-                el.innerText = chunkText;
-                wordBank.appendChild(el);
-            });
-        }
+            // Shuffle options
+            options.sort(() => Math.random() - 0.5);
 
-        function selectWord(text, bankIndex) {
-            userSelection.push({ text, bankIndex });
-            renderGameArea();
-        }
-        function removeWord(selectionIndex) {
-            userSelection.splice(selectionIndex, 1);
-            renderGameArea();
-        }
-        function returnPiece() {
-            if(userSelection.length > 0) removeWord(userSelection.length - 1);
-        }
-        function resetLevel() {
-            userSelection = [];
-            renderGameArea();
-        }
-
-        function checkAnswer() {
-            const targetSentenceFull = THEME_DATA[currentTheme].sentences[currentSentenceIndex].full;
-            const targetSentenceClean = targetSentenceFull.replace(/。|，/g, ''); 
-            const userSentence = userSelection.map(s => s.text).join('');
+            // Render
+            let html = `
+                <div class="flex justify-center mb-8">
+                    <button onclick="speak('${target.text}')" class="bg-sakura w-24 h-24 rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition animate-pulse">
+                        <span class="text-5xl">🔊</span>
+                    </button>
+                </div>
+                <div class="grid grid-cols-3 gap-4">
+                    ${options.map(opt => `
+                        <button onclick="checkAnswer(this, '${opt.text}')" class="option-btn bg-white aspect-square rounded-3xl shadow-md border-b-4 border-gray-200 hover:border-matcha hover:-translate-y-1 transition flex flex-col items-center justify-center gap-2 p-2">
+                            <span class="text-4xl md:text-6xl emoji-img">${opt.emoji}</span>
+                            <span class="text-xl md:text-2xl font-bold text-gray-700">${opt.text}</span>
+                        </button>
+                    `).join('')}
+                </div>
+                <div id="feedback" class="text-center mt-6 h-8 font-bold text-xl text-coffee"></div>
+            `;
             
-            if (userSentence === targetSentenceClean) {
-                speak("做得好！" + targetSentenceFull);
-                celebrate();
+            gameArea.innerHTML = html;
+            
+            // Auto play sound after short delay
+            setTimeout(() => speak(target.text), 500);
+        }
+
+        function checkAnswer(btn, answerText) {
+            if (isAnswering) return;
+            isAnswering = true;
+            
+            const feedback = document.getElementById('feedback');
+
+            if (answerText === currentQuestion.text) {
+                // Correct
+                btn.classList.add('correct-anim');
+                feedback.innerHTML = "✨ 答對了！好棒！ ✨";
+                speak("答對了");
                 setTimeout(() => {
-                    const total = THEME_DATA[currentTheme].sentences.length;
-                    if (currentSentenceIndex < total - 1) {
-                        loadLevel(currentSentenceIndex + 1);
-                    } else {
-                        document.getElementById('sentence-game-container').classList.add('hidden');
-                        document.getElementById('completion-msg').classList.remove('hidden');
-                        speak("太厲害了，你完成了所有句子！");
-                    }
-                }, 2000);
+                    newGameQuestion();
+                }, 1500);
             } else {
-                speak("再試一次吧！");
-                const dropZone = document.getElementById('drop-zone');
-                dropZone.classList.add('animate-pulse', 'border-red-400');
-                setTimeout(() => dropZone.classList.remove('animate-pulse', 'border-red-400'), 1000);
+                // Wrong
+                btn.classList.add('wrong-anim');
+                feedback.innerHTML = "加油，再試一次！💪";
+                speak("再試一次");
+                setTimeout(() => {
+                    btn.classList.remove('wrong-anim');
+                    isAnswering = false;
+                    feedback.innerHTML = "";
+                }, 1000);
             }
         }
 
-        // --- 3. 詞語找朋友 ---
-        function initWordGame() {
-            currentWordGameIndex = 0;
-            loadWordGameLevel();
+
+        // --- 設定與工具 ---
+        function toggleSettings() {
+            const panel = document.getElementById('settingsPanel');
+            panel.classList.toggle('hidden');
         }
 
-        function loadWordGameLevel() {
-            const wordFamily = THEME_DATA[currentTheme].wordFamily;
-            const levels = Object.keys(wordFamily);
-            // 防止切換主題時索引溢出
-            if (currentWordGameIndex >= levels.length) currentWordGameIndex = 0;
+        function updateSize() {
+            const slider = document.getElementById('sizeSlider');
+            textSizeLevel = parseInt(slider.value);
             
-            const targetChar = levels[currentWordGameIndex];
-            
-            document.getElementById('target-char').innerText = targetChar;
-            document.getElementById('current-word-level').innerText = currentWordGameIndex + 1;
-            document.getElementById('total-word-levels').innerText = levels.length;
-            
-            currentWordGameFound = 0;
-            document.getElementById('found-count').innerText = "0";
-            document.getElementById('wordgame-completion').classList.add('hidden');
-            document.getElementById('wordgame-all-done').classList.add('hidden');
-            
-            document.getElementById('wordgame-container').classList.remove('hidden');
-            document.querySelector('#wordgame-view .text-center').classList.remove('hidden');
-            
-            // 準備詞語
-            const correctWords = wordFamily[targetChar].map(word => ({ text: word, correct: true }));
-            
-            // 隨機選錯誤詞
-            const otherChars = levels.filter(c => c !== targetChar);
-            let distractorWords = [];
-            let safety = 0;
-            while(distractorWords.length < 4 && safety < 50) {
-                safety++;
-                if (otherChars.length === 0) break;
-                const randChar = otherChars[Math.floor(Math.random() * otherChars.length)];
-                const words = wordFamily[randChar];
-                const randWord = words[Math.floor(Math.random() * words.length)];
-                if(!distractorWords.some(w => w.text === randWord)) {
-                    distractorWords.push({ text: randWord, correct: false });
+            // If currently in learn mode, re-render to apply class
+            if (currentMode === 'learn') {
+                renderLearnContent();
+            }
+        }
+
+        function toggleImages() {
+            showImages = !showImages;
+            const btn = document.getElementById('imgToggleBtn');
+            const circle = document.getElementById('imgToggleCircle');
+            const app = document.getElementById('appContent');
+
+            if (showImages) {
+                btn.classList.remove('bg-gray-300');
+                btn.classList.add('bg-green-400');
+                circle.classList.remove('left-1');
+                circle.classList.add('left-7');
+                app.classList.remove('hide-images');
+            } else {
+                btn.classList.add('bg-gray-300');
+                btn.classList.remove('bg-green-400');
+                circle.classList.add('left-1');
+                circle.classList.remove('left-7');
+                app.classList.add('hide-images');
+            }
+        }
+
+        function getTextSizeClass() {
+            if (textSizeLevel === 1) return 'text-lg';
+            if (textSizeLevel === 2) return 'text-2xl';
+            if (textSizeLevel === 3) return 'text-4xl';
+            return 'text-2xl';
+        }
+
+        function updateNavStyles() {
+            const btns = document.querySelectorAll('.nav-btn');
+            btns.forEach((btn, idx) => {
+                const modes = ['home', 'learn', 'game'];
+                if (modes[idx] === currentMode) {
+                    btn.classList.remove('text-gray-400');
+                    btn.classList.add('text-coffee');
+                } else {
+                    btn.classList.add('text-gray-400');
+                    btn.classList.remove('text-coffee');
                 }
-            }
-            
-            const gameWords = [...correctWords, ...distractorWords];
-            shuffleArray(gameWords);
-            
-            const area = document.getElementById('wordgame-area');
-            area.innerHTML = '';
-            
-            gameWords.forEach(item => {
-                const bubble = document.createElement('div');
-                bubble.className = 'word-bubble shadow-sm hover:shadow-md';
-                bubble.innerText = item.text;
-                bubble.onclick = function() { handleBubbleClick(this, item.text, item.correct); };
-                area.appendChild(bubble);
             });
-            
-            speak("請找出有 " + targetChar + " 的詞語");
         }
 
-        function handleBubbleClick(element, text, isCorrect) {
-            if(element.classList.contains('correct')) return;
-            if(isCorrect) {
-                element.classList.add('correct');
-                speak(text);
-                currentWordGameFound++;
-                document.getElementById('found-count').innerText = currentWordGameFound;
-                if(currentWordGameFound >= TARGET_COUNT) {
-                    celebrate();
-                    document.getElementById('wordgame-completion').classList.remove('hidden');
-                    speak("太棒了！找到了所有朋友！");
-                }
-            } else {
-                element.classList.add('wrong');
-                speak("不是喔");
-                setTimeout(() => element.classList.remove('wrong'), 500);
-            }
-        }
+        // 啟動
+        init();
 
-        function nextWordLevel() {
-            const levels = Object.keys(THEME_DATA[currentTheme].wordFamily);
-            if(currentWordGameIndex < levels.length - 1) {
-                currentWordGameIndex++;
-                loadWordGameLevel();
-            } else {
-                document.getElementById('wordgame-completion').classList.add('hidden');
-                document.getElementById('wordgame-container').classList.add('hidden');
-                document.querySelector('#wordgame-view .text-center').classList.add('hidden');
-                document.getElementById('wordgame-all-done').classList.remove('hidden');
-                document.getElementById('target-char').innerText = "🏆";
-            }
-        }
-        
-        function resetWordGame() { initWordGame(); }
-
-        function celebrate() {
-            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-        }
-        
-        function restartGame() { loadLevel(0); }
     </script>
 </body>
 </html>
