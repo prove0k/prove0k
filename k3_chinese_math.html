@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K3 中文認字樂園</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Zen Maru Gothic (日式圓體) -->
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Zen Maru Gothic', sans-serif;
+            background-color: #FFF8F0; /* 日式米色 */
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* 隱藏滾動條但保留功能 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* 動畫定義 */
+        @keyframes bounce-short {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .animate-bounce-short { animation: bounce-short 0.5s ease-in-out; }
+
+        /* 移除了 pop-in 動畫 */
+
+        @keyframes float-up {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+        
+        .confetti {
+            position: fixed;
+            top: 100%;
+            z-index: 9999;
+            pointer-events: none;
+            animation: float-up 3s ease-out forwards;
+            font-size: 2rem;
+        }
+
+        /* 自定義樣式類 */
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .btn-press {
+            transition: all 0.1s;
+        }
+        .btn-press:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body class="text-gray-800 h-screen w-full overflow-hidden relative">
+
+    <!-- 應用程式容器 -->
+    <div id="app" class="h-full w-full max-w-5xl mx-auto flex flex-col relative">
+        
+        <!-- 1. 主選單頁面 - 移除了 animate-pop-in -->
+        <div id="view-menu" class="view-section h-full flex flex-col items-center justify-center p-6 space-y-10">
+            <div class="text-center space-y-4">
+                <h1 class="text-5xl md:text-6xl font-bold text-gray-700 tracking-wider drop-shadow-sm">
+                    <span class="text-orange-400">K3</span> 中文樂園
+                </h1>
+                <p class="text-gray-400 text-xl">快樂學中文，開心玩遊戲！</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-2xl">
+                <button onclick="app.switchMode('learning')" class="group bg-white p-8 rounded-3xl shadow-lg border-b-8 border-green-200 hover:border-green-300 hover:-translate-y-1 transition-all flex flex-col items-center gap-4 btn-press">
+                    <div class="bg-green-100 w-20 h-20 flex items-center justify-center rounded-full group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-book-open text-3xl text-green-500"></i>
+                    </div>
+                    <span class="text-2xl font-bold text-gray-700">學習模式</span>
+                </button>
+
+                <button onclick="app.switchMode('game')" class="group bg-white p-8 rounded-3xl shadow-lg border-b-8 border-blue-200 hover:border-blue-300 hover:-translate-y-1 transition-all flex flex-col items-center gap-4 btn-press">
+                    <div class="bg-blue-100 w-20 h-20 flex items-center justify-center rounded-full group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-trophy text-3xl text-blue-500"></i>
+                    </div>
+                    <span class="text-2xl font-bold text-gray-700">遊戲模式</span>
+                </button>
+            </div>
+
+            <button onclick="settingsModal.open()" class="absolute top-6 right-6 bg-white p-3 rounded-full shadow-md text-gray-400 hover:text-orange-400 hover:rotate-90 transition-all">
+                <i class="fa-solid fa-gear text-xl"></i>
+            </button>
+        </div>
+
+        <!-- 2. 學習模式頁面 - 移除了 animate-pop-in -->
+        <div id="view-learning" class="view-section hidden h-full flex flex-col p-4">
+            <!-- 頂部導航 -->
+            <div class="flex items-center gap-4 mb-4">
+                <button onclick="app.switchMode('menu')" class="p-3 bg-white rounded-xl shadow-sm text-gray-500 hover:bg-gray-50 btn-press shrink-0">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <div id="category-tabs" class="flex gap-3 overflow-x-auto no-scrollbar pb-2 w-full">
+                    <!-- Tabs 由 JS 生成 -->
+                </div>
+            </div>
+
+            <!-- 內容區 -->
+            <div class="flex-1 overflow-hidden relative rounded-3xl bg-white/50 border-2 border-white">
+                <div id="learning-grid" class="h-full overflow-y-auto p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 content-start">
+                    <!-- 字卡 由 JS 生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. 遊戲模式頁面 - 移除了 animate-pop-in -->
+        <div id="view-game" class="view-section hidden h-full flex flex-col p-4 relative">
+            <!-- 頂部欄 -->
+            <div class="flex justify-between items-center mb-6">
+                <button onclick="app.switchMode('menu')" class="p-3 bg-white rounded-full shadow-sm text-gray-500 btn-press">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <div class="flex items-center gap-2 bg-yellow-100 px-6 py-2 rounded-full text-yellow-700 font-bold shadow-inner border-2 border-yellow-200">
+                    <i class="fa-solid fa-star text-yellow-400"></i>
+                    <span id="score-display" class="text-xl">分數: 0</span>
+                </div>
+            </div>
+
+            <!-- 題目區 -->
+            <div class="flex-1 flex flex-col items-center justify-center mb-6 relative z-10">
+                <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-xl border-b-8 border-blue-100 flex flex-col items-center text-center relative overflow-hidden transition-all duration-300" id="question-card">
+                    <div class="absolute top-0 left-0 w-full h-4 bg-blue-200"></div>
+                    
+                    <h2 class="text-gray-400 mb-6 font-bold text-lg">請找出這個字</h2>
+                    
+                    <!-- 提示區：圖片或聲音按鈕 -->
+                    <div id="question-hint-area" class="mb-6 h-32 flex items-center justify-center w-full">
+                        <!-- JS 填充 -->
+                    </div>
+
+                    <p class="text-gray-400 text-sm">( 點擊喇叭可以再聽一次 )</p>
+                </div>
+            </div>
+
+            <!-- 選項區 -->
+            <div id="options-grid" class="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl mx-auto w-full z-10 pb-4">
+                <!-- 選項 由 JS 生成 -->
+            </div>
+        </div>
+
+        <!-- 彈窗：生字詳細 (學習模式) -->
+        <div id="modal-word" class="fixed inset-0 bg-black/40 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+            <!-- 移除了 animate-pop-in -->
+            <div class="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl border-4 border-yellow-100 relative">
+                <button onclick="learningMode.closeModal()" class="absolute top-4 right-4 text-gray-300 hover:text-gray-500 w-8 h-8 flex items-center justify-center rounded-full bg-gray-50">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                
+                <div id="modal-word-content" class="flex flex-col items-center text-center pt-4">
+                    <div id="modal-emoji" class="text-8xl mb-4 animate-bounce-short hidden"></div>
+                    <h2 id="modal-text" class="text-6xl font-bold text-gray-800 mb-8 tracking-widest text-shadow-sm"></h2>
+                    
+                    <div class="bg-orange-50 rounded-xl p-5 w-full mb-8 relative border-2 border-orange-100">
+                        <div class="absolute -top-3 left-4 bg-orange-200 text-orange-700 text-xs px-3 py-1 rounded-full font-bold shadow-sm">
+                            例句
+                        </div>
+                        <p id="modal-sentence" class="text-xl text-gray-700 leading-relaxed font-medium mt-2"></p>
+                    </div>
+
+                    <div class="flex gap-4 w-full">
+                        <button onclick="learningMode.playWord()" class="flex-1 bg-blue-100 text-blue-600 py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-blue-200 transition-colors btn-press shadow-sm border-b-4 border-blue-200">
+                            <i class="fa-solid fa-volume-high"></i> 讀字
+                        </button>
+                        <button onclick="learningMode.playSentence()" class="flex-1 bg-green-100 text-green-600 py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-green-200 transition-colors btn-press shadow-sm border-b-4 border-green-200">
+                            <i class="fa-solid fa-volume-low"></i> 讀句
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 彈窗：設定 -->
+        <div id="modal-settings" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+             <!-- 移除了 animate-pop-in -->
+            <div class="bg-white rounded-3xl p-6 w-full max-w-md shadow-xl border-4 border-orange-200">
+                <h2 class="text-2xl font-bold text-gray-700 mb-6 flex items-center gap-2">
+                    <i class="fa-solid fa-gear text-orange-400"></i> 設定
+                </h2>
+                
+                <div class="space-y-6">
+                    <!-- 字體大小 -->
+                    <div>
+                        <label class="block text-gray-600 font-bold mb-2">文字大小</label>
+                        <div class="flex gap-2">
+                            <button onclick="settingsModal.setSize('normal')" class="btn-size flex-1 py-3 rounded-xl border-2 transition-all font-bold text-lg" data-size="normal">標準</button>
+                            <button onclick="settingsModal.setSize('large')" class="btn-size flex-1 py-3 rounded-xl border-2 transition-all font-bold text-xl" data-size="large">大</button>
+                            <button onclick="settingsModal.setSize('xl')" class="btn-size flex-1 py-3 rounded-xl border-2 transition-all font-bold text-2xl" data-size="xl">特大</button>
+                        </div>
+                    </div>
+
+                    <!-- 顯示圖片 -->
+                    <div class="flex items-center justify-between bg-orange-50 p-4 rounded-xl border-2 border-orange-100">
+                        <label class="text-gray-700 font-bold flex items-center gap-2">
+                            <i class="fa-solid fa-image text-orange-400"></i> 顯示圖片 (Emoji)
+                        </label>
+                        <button onclick="settingsModal.toggleImages()" id="btn-toggle-img" class="w-14 h-8 rounded-full p-1 transition-colors bg-gray-300">
+                            <div id="toggle-circle" class="bg-white w-6 h-6 rounded-full shadow-md transform transition-transform translate-x-0"></div>
+                        </button>
+                    </div>
+                </div>
+
+                <button onclick="settingsModal.close()" class="mt-8 w-full bg-orange-400 text-white font-bold py-3 rounded-2xl hover:bg-orange-500 transition-colors shadow-lg btn-press border-b-4 border-orange-600">
+                    完成
+                </button>
+            </div>
+        </div>
+        
+        <!-- 慶祝特效層 -->
+        <div id="celebration-overlay" class="fixed inset-0 pointer-events-none z-40 hidden flex items-center justify-center">
+             <!-- 移除了 animate-pop-in -->
+            <div class="bg-white/90 backdrop-blur-md p-8 rounded-3xl shadow-2xl border-8 border-green-300 transform scale-100 flex flex-col items-center">
+                <div class="text-8xl mb-2 animate-bounce-short">🎉</div>
+                <div class="text-4xl font-bold text-green-600 text-center drop-shadow-sm">好叻！答啱了！</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 邏輯腳本 -->
+    <script>
+        // --- 1. 資料庫 ---
+        const VOCAB_DATA = {
+            "樂": [
+                { word: "快樂", emoji: "😊", sentence: "我今天過得很快樂。" },
+                { word: "樂趣", emoji: "🤹", sentence: "學習充滿了樂趣。" },
+                { word: "樂曲", emoji: "🎵", sentence: "這首樂曲很好聽。" },
+                { word: "樂園", emoji: "🎡", sentence: "我們去兒童樂園玩。" },
+                { word: "樂譜", emoji: "🎼", sentence: "姐姐正在看樂譜練琴。" }
+            ],
+            "特": [
+                { word: "特別", emoji: "✨", sentence: "這份禮物很特別。" },
+                { word: "特徵", emoji: "🐘", sentence: "長鼻子是大象的特徵。" },
+                { word: "特色", emoji: "🌟", sentence: "這是香港的特色小食。" },
+                { word: "特產", emoji: "🎁", sentence: "這是從日本帶回來的特產。" },
+                { word: "特點", emoji: "📍", sentence: "這個玩具的特點是會發光。" }
+            ],
+            "行": [
+                { word: "旅行", emoji: "✈️", sentence: "暑假我們去日本旅行。" },
+                { word: "行動", emoji: "🏃", sentence: "我們要馬上行動！" },
+                { word: "行程", emoji: "🗓️", sentence: "今天的行程很緊湊。" },
+                { word: "行李", emoji: "🧳", sentence: "爸爸幫忙搬運大行李。" },
+                { word: "行業", emoji: "👨‍⚕️", sentence: "醫生是一個受尊敬的行業。" }
+            ],
+            "清": [
+                { word: "清楚", emoji: "👓", sentence: "黑板上的字看得很清楚。" },
+                { word: "清晨", emoji: "🌅", sentence: "清晨的空氣很清新。" },
+                { word: "清理", emoji: "🧹", sentence: "我們要清理好自己的房間。" },
+                { word: "清白", emoji: "☁️", sentence: "他是清白的，沒有說謊。" },
+                { word: "清淡", emoji: "🥗", sentence: "爺爺喜歡吃清淡的食物。" }
+            ],
+            "請": [
+                { word: "請教", emoji: "🙋", sentence: "我有問題要請教老師。" },
+                { word: "請假", emoji: "📝", sentence: "小明生病了，要向學校請假。" },
+                { word: "請問", emoji: "❓", sentence: "請問圖書館在哪裡？" },
+                { word: "請求", emoji: "🙏", sentence: "我請求媽媽讓我看電視。" },
+                { word: "請客", emoji: "🍽️", sentence: "今天爸爸請客吃大餐。" }
+            ],
+            "茶": [
+                { word: "茶葉", emoji: "🍃", sentence: "這些茶葉很香。" },
+                { word: "茶會", emoji: "🍵", sentence: "媽媽參加了一個下午茶會。" },
+                { word: "茶具", emoji: "🫖", sentence: "這套茶具很精緻。" },
+                { word: "茶杯", emoji: "🥃", sentence: "請小心拿著茶杯。" },
+                { word: "茶園", emoji: "🌳", sentence: "茶園裡種滿了綠茶樹。" }
+            ],
+            "難": [
+                { word: "難題", emoji: "🧩", sentence: "這道數學題是個難題。" },
+                { word: "難得", emoji: "💎", sentence: "這是個難得的機會。" },
+                { word: "難度", emoji: "📉", sentence: "這個遊戲很有難度。" },
+                { word: "難過", emoji: "😢", sentence: "小狗生病了，我很難過。" },
+                { word: "難關", emoji: "🚧", sentence: "我們要一起度過難關。" }
+            ],
+            "善": [
+                { word: "善良", emoji: "😇", sentence: "白雪公主很善良。" },
+                { word: "善事", emoji: "🤝", sentence: "我們要多做善事幫助別人。" },
+                { word: "善報", emoji: "❤️", sentence: "好人會有善報。" },
+                { word: "善忘", emoji: "🤔", sentence: "爺爺年紀大了，比較善忘。" },
+                { word: "善變", emoji: "🦎", sentence: "六月的天氣很善變，時晴時雨。" }
+            ]
+        };
+
+        const ALL_WORDS = Object.values(VOCAB_DATA).flat();
+
+        // --- 2. 全局狀態與工具 ---
+        const state = {
+            mode: 'menu', // menu, learning, game
+            settings: {
+                fontSize: 'normal', // normal, large, xl
+                showImages: false
+            },
+            learning: {
+                category: Object.keys(VOCAB_DATA)[0],
+                currentWord: null
+            },
+            game: {
+                score: 0,
+                currentQuestion: null,
+                options: [],
+                isProcessing: false
+            }
+        };
+
+        const utils = {
+            // 發音功能
+            speak: (text) => {
+                if (!window.speechSynthesis) return;
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'zh-HK';
+                utterance.rate = 0.85; // 稍微慢一點
+                
+                // 嘗試獲取廣東話聲音
+                const voices = window.speechSynthesis.getVoices();
+                const cantoneseVoice = voices.find(v => v.lang.includes('HK') || v.lang.includes('yue'));
+                if (cantoneseVoice) utterance.voice = cantoneseVoice;
+
+                window.speechSynthesis.speak(utterance);
+            },
+            
+            // 隨機打亂陣列
+            shuffle: (array) => {
+                const newArr = [...array];
+                for (let i = newArr.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+                }
+                return newArr;
+            },
+
+            // 產生慶祝彩帶 (Emoji Confetti)
+            createConfetti: () => {
+                const emojis = ['🎉', '⭐', '🌸', '✨', '🎈', '🍬'];
+                const count = 30;
+                
+                for(let i=0; i<count; i++) {
+                    const el = document.createElement('div');
+                    el.classList.add('confetti');
+                    el.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                    el.style.left = Math.random() * 100 + 'vw';
+                    el.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+                    el.style.fontSize = (Math.random() * 1.5 + 1) + 'rem';
+                    document.body.appendChild(el);
+                    
+                    // 動畫結束後移除
+                    setTimeout(() => el.remove(), 3500);
+                }
+            }
+        };
+
+        // --- 3. 模組邏輯 ---
+
+        // APP 主控
+        const app = {
+            init: () => {
+                // 預載語音列表
+                if (window.speechSynthesis) {
+                    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+                }
+                settingsModal.updateUI();
+            },
+
+            switchMode: (newMode) => {
+                // 隱藏所有視圖
+                document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+                
+                // 更新狀態
+                state.mode = newMode;
+
+                // 初始化並顯示新視圖
+                if (newMode === 'menu') {
+                    document.getElementById('view-menu').classList.remove('hidden');
+                } else if (newMode === 'learning') {
+                    document.getElementById('view-learning').classList.remove('hidden');
+                    learningMode.renderTabs();
+                    learningMode.renderGrid();
+                } else if (newMode === 'game') {
+                    document.getElementById('view-game').classList.remove('hidden');
+                    gameMode.start();
+                }
+            }
+        };
+
+        // 學習模式邏輯
+        const learningMode = {
+            renderTabs: () => {
+                const container = document.getElementById('category-tabs');
+                container.innerHTML = Object.keys(VOCAB_DATA).map(cat => `
+                    <button onclick="learningMode.setCategory('${cat}')" 
+                        class="shrink-0 px-6 py-3 rounded-xl font-bold text-xl shadow-sm transition-all border-b-4
+                        ${state.learning.category === cat 
+                            ? 'bg-orange-400 text-white border-orange-600 transform scale-105' 
+                            : 'bg-white text-gray-400 border-gray-200 hover:bg-orange-50'}">
+                        ${cat}
+                    </button>
+                `).join('');
+            },
+
+            setCategory: (cat) => {
+                state.learning.category = cat;
+                learningMode.renderTabs();
+                learningMode.renderGrid();
+            },
+
+            renderGrid: () => {
+                const container = document.getElementById('learning-grid');
+                const words = VOCAB_DATA[state.learning.category];
+                
+                // 樣式
+                const sizeClass = state.settings.fontSize === 'normal' ? 'text-2xl' : state.settings.fontSize === 'large' ? 'text-3xl' : 'text-4xl';
+                const emojiSize = state.settings.fontSize === 'normal' ? 'text-4xl' : state.settings.fontSize === 'large' ? 'text-5xl' : 'text-6xl';
+
+                container.innerHTML = words.map((item, idx) => `
+                    <button onclick="learningMode.openModal(${idx})" 
+                        class="bg-white rounded-2xl p-4 shadow-md border-b-4 border-orange-100 hover:border-orange-300 hover:-translate-y-1 transition-all flex flex-col items-center justify-center gap-2 aspect-square btn-press">
+                        ${state.settings.showImages ? `<span class="${emojiSize} animate-bounce-short">${item.emoji}</span>` : ''}
+                        <span class="${sizeClass} font-bold text-gray-700 tracking-widest">${item.word}</span>
+                    </button>
+                `).join('');
+            },
+
+            openModal: (idx) => {
+                const wordData = VOCAB_DATA[state.learning.category][idx];
+                state.learning.currentWord = wordData;
+
+                // 填充內容
+                const emojiEl = document.getElementById('modal-emoji');
+                emojiEl.innerText = wordData.emoji;
+                emojiEl.className = `text-8xl mb-4 animate-bounce-short ${state.settings.showImages ? 'block' : 'hidden'}`;
+
+                document.getElementById('modal-text').innerText = wordData.word;
+                document.getElementById('modal-sentence').innerText = wordData.sentence;
+
+                // 顯示彈窗
+                document.getElementById('modal-word').classList.remove('hidden');
+
+                // 自動讀字
+                utils.speak(wordData.word);
+                setTimeout(() => utils.speak(wordData.sentence), 1200);
+            },
+
+            closeModal: () => {
+                document.getElementById('modal-word').classList.add('hidden');
+                window.speechSynthesis.cancel();
+            },
+
+            playWord: () => {
+                if(state.learning.currentWord) utils.speak(state.learning.currentWord.word);
+            },
+
+            playSentence: () => {
+                if(state.learning.currentWord) utils.speak(state.learning.currentWord.sentence);
+            }
+        };
+
+        // 遊戲模式邏輯
+        const gameMode = {
+            start: () => {
+                state.game.score = 0;
+                gameMode.updateScoreUI();
+                gameMode.nextQuestion();
+            },
+
+            nextQuestion: () => {
+                state.game.isProcessing = false;
+                
+                // 隨機選字
+                const randomWord = ALL_WORDS[Math.floor(Math.random() * ALL_WORDS.length)];
+                // 隨機選錯誤選項
+                const distractors = utils.shuffle(ALL_WORDS.filter(w => w.word !== randomWord.word)).slice(0, 5);
+                const options = utils.shuffle([randomWord, ...distractors]);
+
+                state.game.currentQuestion = randomWord;
+                state.game.options = options;
+
+                gameMode.renderUI();
+                
+                // 延遲讀題
+                setTimeout(() => {
+                    utils.speak(`請找出... ${randomWord.word}`);
+                }, 500);
+            },
+
+            renderUI: () => {
+                const q = state.game.currentQuestion;
+                
+                // 渲染提示區 (圖片或聲音圖標)
+                const hintArea = document.getElementById('question-hint-area');
+                if (state.settings.showImages) {
+                    hintArea.innerHTML = `<div class="text-8xl animate-bounce-short">${q.emoji}</div>`;
+                } else {
+                    hintArea.innerHTML = `
+                        <button onclick="utils.speak('${q.word}')" class="bg-blue-100 w-24 h-24 rounded-full text-blue-500 hover:bg-blue-200 transition-colors flex items-center justify-center animate-pulse">
+                            <i class="fa-solid fa-volume-high text-4xl"></i>
+                        </button>
+                    `;
+                }
+
+                // 渲染選項
+                const optContainer = document.getElementById('options-grid');
+                const textSize = state.settings.fontSize === 'normal' ? 'text-xl' : state.settings.fontSize === 'large' ? 'text-2xl' : 'text-3xl';
+                
+                optContainer.innerHTML = state.game.options.map(opt => `
+                    <button onclick="gameMode.checkAnswer('${opt.word}')" 
+                        class="${textSize} font-bold p-6 rounded-2xl shadow-md transition-all border-b-4 bg-white border-gray-100 text-gray-700 hover:bg-orange-50 hover:border-orange-200 btn-press active:scale-95">
+                        ${opt.word}
+                    </button>
+                `).join('');
+            },
+
+            checkAnswer: (selectedWord) => {
+                if (state.game.isProcessing) return;
+
+                if (selectedWord === state.game.currentQuestion.word) {
+                    // 答對了
+                    state.game.isProcessing = true;
+                    state.game.score += 1;
+                    gameMode.updateScoreUI();
+                    
+                    // 特效
+                    utils.speak("好叻！答啱了！");
+                    gameMode.showCelebration();
+
+                } else {
+                    // 答錯了
+                    utils.speak("哎呀，再試一次吧！");
+                    // 可以加入搖晃動畫
+                    const card = document.getElementById('question-card');
+                    card.classList.add('animate-bounce');
+                    setTimeout(() => card.classList.remove('animate-bounce'), 500);
+                }
+            },
+
+            showCelebration: () => {
+                // 1. 顯示覆蓋層
+                const overlay = document.getElementById('celebration-overlay');
+                overlay.classList.remove('hidden');
+                
+                // 2. 發射彩帶
+                utils.createConfetti();
+
+                // 3. 延遲後進入下一題
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                    gameMode.nextQuestion();
+                }, 2500);
+            },
+
+            updateScoreUI: () => {
+                document.getElementById('score-display').innerText = `分數: ${state.game.score}`;
+            }
+        };
+
+        // 設定模組
+        const settingsModal = {
+            open: () => {
+                document.getElementById('modal-settings').classList.remove('hidden');
+                settingsModal.updateUI();
+            },
+            
+            close: () => {
+                document.getElementById('modal-settings').classList.add('hidden');
+                // 如果正在學習模式，刷新一下網格以應用新設定
+                if (state.mode === 'learning') learningMode.renderGrid();
+                if (state.mode === 'game') gameMode.renderUI();
+            },
+
+            setSize: (size) => {
+                state.settings.fontSize = size;
+                settingsModal.updateUI();
+            },
+
+            toggleImages: () => {
+                state.settings.showImages = !state.settings.showImages;
+                settingsModal.updateUI();
+            },
+
+            updateUI: () => {
+                // 更新字體按鈕狀態
+                document.querySelectorAll('.btn-size').forEach(btn => {
+                    if (btn.dataset.size === state.settings.fontSize) {
+                        btn.className = 'btn-size flex-1 py-3 rounded-xl border-2 transition-all font-bold bg-orange-100 border-orange-400 text-orange-600';
+                    } else {
+                        btn.className = 'btn-size flex-1 py-3 rounded-xl border-2 transition-all font-bold bg-gray-50 border-gray-200 text-gray-500';
+                    }
+                });
+
+                // 更新圖片開關狀態
+                const toggleBtn = document.getElementById('btn-toggle-img');
+                const circle = document.getElementById('toggle-circle');
+                if (state.settings.showImages) {
+                    toggleBtn.className = 'w-14 h-8 rounded-full p-1 transition-colors bg-green-400';
+                    circle.className = 'bg-white w-6 h-6 rounded-full shadow-md transform transition-transform translate-x-6';
+                } else {
+                    toggleBtn.className = 'w-14 h-8 rounded-full p-1 transition-colors bg-gray-300';
+                    circle.className = 'bg-white w-6 h-6 rounded-full shadow-md transform transition-transform translate-x-0';
+                }
+            }
+        };
+
+        // 啟動
+        app.init();
+
+    </script>
+</body>
+</html>
